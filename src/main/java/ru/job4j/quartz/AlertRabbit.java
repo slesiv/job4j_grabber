@@ -79,12 +79,10 @@ public class AlertRabbit {
                 e.printStackTrace();
             }
             try (Connection cn = DriverManager.getConnection(
-
                     properties.getProperty("postgres.url"),
                     properties.getProperty("postgres.user"),
-                    properties.getProperty("postgres.password")))
-            {
-
+                    properties.getProperty("postgres.password")
+            )) {
                 try (PreparedStatement ps = cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)")) {
                     ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                     ps.executeUpdate();
