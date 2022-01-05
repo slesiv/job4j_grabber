@@ -6,6 +6,7 @@
 
     <groupId>ru.job4j</groupId>
     <artifactId>job4j_grabber</artifactId>
+    <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
