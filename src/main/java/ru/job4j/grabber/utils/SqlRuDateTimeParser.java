@@ -29,22 +29,29 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     @Override
     public LocalDateTime parse(String parse) {
         LocalDateTime ldt;
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+        final DateTimeFormatter FORMATTER_HHMM = DateTimeFormatter.ofPattern("HH:mm");
+        final String TODAY = "сегодня";
+        final String YESTERDAY = "вчера";
+
         String[] dateTime = parse.split(",");
         if (!dateTime[0].isEmpty() && !dateTime[1].isEmpty()) {
             LocalDate correctDate;
-            if ("сегодня".equals(dateTime[0])) {
+            if (TODAY.equals(dateTime[0])) {
                 correctDate = LocalDate.now();
-            } else if ("вчера".equals(dateTime[0])) {
+            } else if (YESTERDAY.equals(dateTime[0])) {
                 correctDate = LocalDate.now().minusDays(1);
             } else {
                 String[] dayMonthYear = dateTime[0].split(" ");
-                correctDate = LocalDate.of(Integer.parseInt("20" + dayMonthYear[2]), MONTHS.get(dayMonthYear[1]), Integer.parseInt(dayMonthYear[0]));
+                correctDate = LocalDate.of(Integer.parseInt(
+                        "20" + dayMonthYear[2]),
+                        MONTHS.get(dayMonthYear[1]),
+                        Integer.parseInt(dayMonthYear[0]));
             }
-            LocalTime correctTime = LocalTime.parse(dateTime[1].trim(), dtf);
+            LocalTime correctTime = LocalTime.parse(dateTime[1].trim(), FORMATTER_HHMM);
             ldt = LocalDateTime.of(correctDate, correctTime);
         } else {
-            throw new IllegalArgumentException("Получен неизвестный формат даты или времени \"dd MMM yy, HH:mm\" -> " + parse);
+            throw new IllegalArgumentException(
+                    "Получен неизвестный формат даты или времени \"dd MMM yy, HH:mm\" -> " + parse);
         }
         return ldt;
     }
