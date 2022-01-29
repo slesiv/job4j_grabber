@@ -4,11 +4,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,17 +17,20 @@ import static org.quartz.SimpleScheduleBuilder.*;
 public class AlertRabbit {
 
     public static void main(String[] args) {
-        try {
+        Properties propRabbit = loadProp("./src/main/resources/rabbit.properties");
+        try (Connection con = Rabbit.getConnection(loadProp("./src/main/resources/app.properties"))) {
             List<Long> store = new ArrayList<>();
+
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
             data.put("store", store);
+            data.put("connect", con);
             JobDetail job = newJob(Rabbit.class)
                     .usingJobData(data)
                     .build();
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(getSecInterval())
+                    .withIntervalInSeconds(Integer.parseInt(propRabbit.getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -44,11 +43,6 @@ public class AlertRabbit {
         } catch (Exception se) {
             se.printStackTrace();
         }
-    }
-
-    private static int getSecInterval() {
-        Properties propRabbit = loadProp("./src/main/resources/rabbit.properties");
-        return Integer.parseInt(propRabbit.getProperty("rabbit.interval"));
     }
 
     private static Properties loadProp(String str) {
@@ -78,18 +72,21 @@ public class AlertRabbit {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            try (Connection cn = DriverManager.getConnection(
-                    properties.getProperty("postgres.url"),
-                    properties.getProperty("postgres.user"),
-                    properties.getProperty("postgres.password")
-            )) {
-                try (PreparedStatement ps = cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)")) {
-                    ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-                    ps.executeUpdate();
-                }
+            Connection cn = (Connection) context.getJobDetail().getJobDataMap().get("connect");
+            try (PreparedStatement ps = cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)")) {
+                ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                ps.executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+
+        public static Connection getConnection(Properties properties) throws SQLException {
+            Connection connection = DriverManager.getConnection(
+                    properties.getProperty("postgres.url"),
+                    properties.getProperty("postgres.user"),
+                    properties.getProperty("postgres.password"));
+            return connection;
         }
     }
 }
