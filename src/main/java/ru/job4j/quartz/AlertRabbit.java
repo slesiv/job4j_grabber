@@ -16,8 +16,8 @@ import static org.quartz.SimpleScheduleBuilder.*;
 public class AlertRabbit {
 
     public static void main(String[] args) {
-        Properties propRabbit = loadProp("./src/main/resources/rabbit.properties");
-        try (Connection con = getConnection()) {
+        Properties properties = loadProp("./src/main/resources/app.properties");
+        try (Connection con = getConnection(properties)) {
             List<Long> store = new ArrayList<>();
 
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -28,7 +28,7 @@ public class AlertRabbit {
                     .usingJobData(data)
                     .build();
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(Integer.parseInt(propRabbit.getProperty("rabbit.interval")))
+                    .withIntervalInSeconds(Integer.parseInt(properties.getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -53,8 +53,7 @@ public class AlertRabbit {
         return properties;
     }
 
-    public static Connection getConnection() throws SQLException {
-        Properties properties = loadProp("./src/main/resources/app.properties");
+    public static Connection getConnection(Properties properties) throws SQLException {
         try {
             Class.forName(properties.getProperty("postgres.driver"));
         } catch (ClassNotFoundException e) {
