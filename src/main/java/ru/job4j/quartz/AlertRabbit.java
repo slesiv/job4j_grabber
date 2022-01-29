@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static java.lang.System.currentTimeMillis;
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
@@ -18,13 +17,12 @@ public class AlertRabbit {
 
     public static void main(String[] args) {
         Properties propRabbit = loadProp("./src/main/resources/rabbit.properties");
-        try (Connection con = Rabbit.getConnection(loadProp("./src/main/resources/app.properties"))) {
+        try (Connection con = getConnection()) {
             List<Long> store = new ArrayList<>();
 
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
-            data.put("store", store);
             data.put("connect", con);
             JobDetail job = newJob(Rabbit.class)
                     .usingJobData(data)
@@ -55,6 +53,20 @@ public class AlertRabbit {
         return properties;
     }
 
+    public static Connection getConnection() throws SQLException {
+        Properties properties = loadProp("./src/main/resources/app.properties");
+        try {
+            Class.forName(properties.getProperty("postgres.driver"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        Connection connection = DriverManager.getConnection(
+                properties.getProperty("postgres.url"),
+                properties.getProperty("postgres.user"),
+                properties.getProperty("postgres.password"));
+        return connection;
+    }
+
     public static class Rabbit implements Job {
 
         public Rabbit() {
@@ -64,14 +76,6 @@ public class AlertRabbit {
         @Override
         public void execute(JobExecutionContext context) {
             System.out.println("Rabbit runs here ...");
-            List<Long> store = (List<Long>) context.getJobDetail().getJobDataMap().get("store");
-            store.add(currentTimeMillis());
-            Properties properties = loadProp("./src/main/resources/app.properties");
-            try {
-                Class.forName(properties.getProperty("postgres.driver"));
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
             Connection cn = (Connection) context.getJobDetail().getJobDataMap().get("connect");
             try (PreparedStatement ps = cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)")) {
                 ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
@@ -79,14 +83,6 @@ public class AlertRabbit {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-        }
-
-        public static Connection getConnection(Properties properties) throws SQLException {
-            Connection connection = DriverManager.getConnection(
-                    properties.getProperty("postgres.url"),
-                    properties.getProperty("postgres.user"),
-                    properties.getProperty("postgres.password"));
-            return connection;
         }
     }
 }
