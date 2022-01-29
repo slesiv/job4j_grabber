@@ -51,7 +51,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
 
     public static void main(String[] args) throws IOException {
         DateTimeParser parser = new SqlRuDateTimeParser();
-        for (String dt : SqlRuParse.startParse()) {
+        for (String dt : SqlRuParse.startParse(5)) {
             System.out.println(parser.parse(dt));
         }
     }
