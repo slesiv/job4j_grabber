@@ -4,8 +4,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.Post;
+import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +30,26 @@ public class SqlRuParse {
         return dateAndTime;
     }
 
+    public static Post postParse(String link) throws IOException {
+        SqlRuDateTimeParser dateParser = new SqlRuDateTimeParser();
+        Post post = null;
+        if (!link.isEmpty() && link != null) {
+            Document doc = Jsoup.connect(link).get();
+            Elements postElem = doc.select(".msgTable");
+            for (Element el : postElem) {
+                String title = el.select(".messageHeader").text();
+                String description = el.select(".msgBody").text();
+                String dateStr = el.select(".msgFooter").text();
+                LocalDateTime created = dateParser.parse(
+                        dateStr.substring(0, dateStr.indexOf("[")).strip());
+                post = new Post(title, link, description, created);
+                break;
+            }
+        }
+        return post;
+    }
+
     public static void main(String[] args) throws IOException {
-        SqlRuParse.startParse(5);
+        SqlRuParse.postParse("https://www.sql.ru/forum/1325330/lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t");
     }
 }
