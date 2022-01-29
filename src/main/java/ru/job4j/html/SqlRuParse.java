@@ -16,8 +16,15 @@ public class SqlRuParse {
         Elements row = doc.select(".postslisttopic");
         for (Element tr : row) {
             Element date = tr.parent().child(5);
+            System.out.print(date.text());
+            System.out.print("   " + tr.child(0).text());
+            System.out.println("   " + tr.child(0).attr("href"));
             dateAndTime.add(date.text());
         }
         return dateAndTime;
+    }
+
+    public static void main(String[] args) throws IOException {
+        SqlRuParse.startParse();
     }
 }
