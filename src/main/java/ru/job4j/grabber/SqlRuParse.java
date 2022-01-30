@@ -32,8 +32,8 @@ public class SqlRuParse implements Parse {
             Elements row = doc.select(".postslisttopic");
 
             for (Element tr : row) {
-                if (!tr.text().toLowerCase().contains("javascript") &&
-                    tr.text().toLowerCase().contains("java")) {
+                if (!tr.text().toLowerCase().contains("javascript")
+                        && tr.text().toLowerCase().contains("java")) {
                     listPosts.add(detail(tr.child(0).attr("href")));
                 }
             }
