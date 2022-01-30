@@ -105,15 +105,7 @@ public class PsqlStore implements Store, AutoCloseable {
         Store store = new PsqlStore(properties);
         Post post = new Post(
                 "Ищем Senior WebGL developer (создание 2D движка) ",
-                "Привет!\n" +
-                        "Ищу Senior Frontend разработчика для участия в создании собственного высокопроизводительного 2D движка для отрисовки графиков в сфере финтех.\n" +
-                        "\n" +
-                        "Основные технологии: TypeScript (Javascript), GLSL; Webpack; API: WebGL, Canvas, DOM; VCS: Git (Gitlab); отслеживание задач: Jira.\n" +
-                        "\n" +
-                        "Формат работы удаленный, условия официальные, много плюшек, годовой бонус до 3-х окладов.\n" +
-                        "з/п 300 000 р.\n" +
-                        "\n" +
-                        "Подробнее тут: https://telegra.ph/Senior-Frontend-developer-12-07",
+                "Какое нибудь описание",
                 "https://www.sql.ru/forum/1341601/ishhem-senior-webgl-developer-sozdanie-2d-dvizhka",
                 LocalDateTime.of(2022, 01, 20, 11, 44, 00)
         );
