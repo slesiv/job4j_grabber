@@ -1,8 +1,5 @@
 package ru.job4j.grabber.utils;
 
-import ru.job4j.html.SqlRuParse;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -54,12 +51,5 @@ public class SqlRuDateTimeParser implements DateTimeParser {
                     "Получен неизвестный формат даты или времени \"dd MMM yy, HH:mm\" -> " + parse);
         }
         return ldt;
-    }
-
-    public static void main(String[] args) throws IOException {
-        DateTimeParser parser = new SqlRuDateTimeParser();
-        for (String dt : SqlRuParse.startParse(5)) {
-            System.out.println(parser.parse(dt));
-        }
     }
 }
