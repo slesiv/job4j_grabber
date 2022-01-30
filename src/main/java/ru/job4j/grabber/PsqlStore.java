@@ -1,7 +1,5 @@
 package ru.job4j.grabber;
 
-import com.mchange.v2.sql.filter.FilterPreparedStatement;
-
 import java.io.FileInputStream;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -63,7 +61,7 @@ public class PsqlStore implements Store, AutoCloseable {
             ps.setInt(1, id);
 
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 post = getPostFromResultSet(rs);
             }
         } catch (SQLException ex) {
