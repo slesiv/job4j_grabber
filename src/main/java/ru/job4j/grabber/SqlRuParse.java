@@ -22,7 +22,7 @@ public class SqlRuParse implements Parse {
     @Override
     public List<Post> list(String link) {
         List<Post> listPosts = new ArrayList<>();
-        for (int page = 1; page <= 1; page++) {
+        for (int page = 1; page <= 5; page++) {
             Document doc = null;
             try {
                 doc = Jsoup.connect(link + page).get();
@@ -30,7 +30,13 @@ public class SqlRuParse implements Parse {
                 e.printStackTrace();
             }
             Elements row = doc.select(".postslisttopic");
-            row.forEach(tr -> listPosts.add(detail(tr.child(0).attr("href"))));
+
+            for (Element tr : row) {
+                if (!tr.text().toLowerCase().contains("javascript") &&
+                    tr.text().toLowerCase().contains("java")) {
+                    listPosts.add(detail(tr.child(0).attr("href")));
+                }
+            }
         }
         return listPosts;
     }
@@ -61,6 +67,6 @@ public class SqlRuParse implements Parse {
 
     public static void main(String[] args) {
         Parse parse = new SqlRuParse(new SqlRuDateTimeParser());
-        System.out.println(parse.list("https://www.sql.ru/forum/job-offers/3"));
+        System.out.println(parse.list("https://www.sql.ru/forum/job-offers/"));
     }
 }
